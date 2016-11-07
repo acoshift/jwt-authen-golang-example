@@ -74,7 +74,7 @@ func ValidateToken(token string, userID int64) (bool, error) {
 	go func(tk model.Token) {
 		ctx, cancel := getContext()
 		defer cancel()
-		client.Put(ctx, tk.Key(), tk)
+		client.Put(ctx, tk.Key(), &tk)
 	}(*tk)
 	return true, nil
 }
