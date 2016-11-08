@@ -21,6 +21,7 @@ import (
 func Auth(g *echo.Group) {
 	g.Post("", authTokenHadler)
 	g.Post("/register", authRegisterHandler)
+	g.Post("/revoke", authRevokeHandler, verifyAccessTokenMiddleware)
 }
 
 type authRequest struct {
@@ -185,6 +186,23 @@ func init() {
 	}
 }
 
+type authRevokeRequest struct {
+	Token string `json:"token"`
+}
+
+func authRevokeHandler(c echo.Context) error {
+	var body authRevokeRequest
+	var err error
+	if err = c.Bind(&body); err != nil || body.Token == "" {
+		return c.String(http.StatusBadRequest, "Bad Request")
+	}
+	if err = api.DeleteToken(body.Token); err != nil {
+		log.Println(err)
+		return c.String(http.StatusInternalServerError, "Internal Server Error")
+	}
+	return c.String(http.StatusOK, "OK")
+}
+
 func getTokenFromHeader(c echo.Context) string {
 	token := c.Request().Header().Get(echo.HeaderAuthorization)
 	token = strings.TrimSpace(token)
@@ -217,7 +235,7 @@ func verifyAccessTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		token := getTokenFromHeader(c)
 		claims, err := validateToken(token)
-		if err != nil && claims.Type != TokenTypeAccessToken {
+		if err != nil || claims.Type != TokenTypeAccessToken {
 			return c.String(http.StatusUnauthorized, "Unauthorized")
 		}
 		// set user id to context
