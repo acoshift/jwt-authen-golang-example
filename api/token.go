@@ -2,6 +2,7 @@ package api
 
 import (
 	"jwt-authen-golang-example/model"
+	"time"
 
 	"cloud.google.com/go/datastore"
 )
@@ -62,12 +63,18 @@ func DeleteToken(token string) error {
 }
 
 // ValidateToken validate and update token last access timestamp
-func ValidateToken(token string, userID int64) (bool, error) {
+func ValidateToken(token string, userID int64, expiresInFromLastAccess time.Duration) (bool, error) {
 	tk, err := getToken(token)
 	if err != nil {
 		return false, err
 	}
 	if tk == nil || tk.UserID != userID {
+		return false, nil
+	}
+	if time.Now().After(tk.LastAccessAt.Add(expiresInFromLastAccess)) {
+		// token expired
+		// remove expired token from database
+		go DeleteToken(token)
 		return false, nil
 	}
 	tk.Stamp()

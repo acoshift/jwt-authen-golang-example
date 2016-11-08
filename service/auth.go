@@ -90,7 +90,7 @@ func authTokenHadler(c echo.Context) error {
 			return c.String(http.StatusUnauthorized, "Unauthorized")
 		}
 		// verify refresh token in database
-		if ok, err := api.ValidateToken(body.RefreshToken, claims.ID); !ok {
+		if ok, err := api.ValidateToken(body.RefreshToken, claims.ID, refreshTokenDuration); !ok {
 			if err != nil {
 				log.Println(err)
 				return c.String(http.StatusInternalServerError, "Internal Server Error")
@@ -155,6 +155,7 @@ const (
 )
 
 const accessTokenDuration = time.Duration(time.Minute * 5)
+const refreshTokenDuration = time.Duration(time.Hour * 24 * 7)
 
 // Token Errors
 var (
