@@ -149,8 +149,8 @@ type tokenType int
 
 // Token Type
 const (
-	_ = tokenType(iota)
-	TokenTypeRefreshToken
+	_                               = iota
+	TokenTypeRefreshToken tokenType = iota
 	TokenTypeAccessToken
 )
 
