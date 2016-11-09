@@ -19,7 +19,7 @@ import (
 
 // Auth service
 func Auth(g *echo.Group) {
-	g.Post("", authTokenHadler)
+	g.Post("", authTokenHandler)
 	g.Post("/register", authRegisterHandler)
 	g.Post("/revoke", authRevokeHandler, verifyAccessTokenMiddleware)
 }
@@ -47,7 +47,7 @@ const (
 	grantTypeRefreshToken = "refresh_token"
 )
 
-func authTokenHadler(c echo.Context) error {
+func authTokenHandler(c echo.Context) error {
 	var body authRequest
 	if err := c.Bind(&body); err != nil {
 		return c.String(http.StatusBadRequest, "Bad Request")
