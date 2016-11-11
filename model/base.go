@@ -18,5 +18,5 @@ func (x *Base) Key() *datastore.Key {
 // SetKey sets key and id to new given key
 func (x *Base) SetKey(key *datastore.Key) {
 	x.key = key
-	x.ID = key.ID()
+	x.ID = key.ID
 }

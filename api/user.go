@@ -4,6 +4,7 @@ import (
 	"jwt-authen-golang-example/model"
 
 	"cloud.google.com/go/datastore"
+	"google.golang.org/api/iterator"
 )
 
 const kindUser = "User"
@@ -19,7 +20,7 @@ func FindUser(username, password string) (*model.User, error) {
 		Filter("Username =", username).
 		Limit(1)
 	key, err := client.Run(ctx, q).Next(&user)
-	if err == datastore.Done {
+	if err == iterator.Done {
 		// Not found
 		return nil, nil
 	}
@@ -43,7 +44,7 @@ func SaveUser(user *model.User) error {
 	user.Stamp()
 	key := user.Key()
 	if key == nil {
-		key = datastore.NewIncompleteKey(ctx, kindUser, nil)
+		key = datastore.IncompleteKey(kindUser, nil)
 	}
 	key, err = client.Put(ctx, key, user)
 	if err != nil {

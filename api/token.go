@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/datastore"
+	"google.golang.org/api/iterator"
 )
 
 const kindToken = "Token"
@@ -20,7 +21,7 @@ func CreateToken(token string, userID int64) error {
 		UserID: userID,
 	}
 	tk.Stamp()
-	key := datastore.NewIncompleteKey(ctx, kindToken, nil)
+	key := datastore.IncompleteKey(kindToken, nil)
 	key, err = client.Put(ctx, key, tk)
 	if err != nil {
 		return err
@@ -40,7 +41,7 @@ func getToken(token string) (*model.Token, error) {
 		Filter("Token =", token).
 		Limit(1)
 	key, err := client.Run(ctx, q).Next(&tk)
-	if err == datastore.Done {
+	if err == iterator.Done {
 		// token not found
 		return nil, nil
 	}
